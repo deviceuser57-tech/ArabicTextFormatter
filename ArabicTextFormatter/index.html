@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منسق النصوص العربية الذكي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 60%, #667eea 100%);
+            color: white;
+            padding: 35px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%,100% { transform: translateX(-30%) translateY(-30%); } 50% { transform: translateX(30%) translateY(30%); } }
+        .header h1 { font-size: 2.2em; font-weight: 700; margin-bottom: 8px; position: relative; }
+        .header p  { font-size: 1.05em; opacity: 0.85; position: relative; }
+
+        /* STATUS BAR */
+        .status-bar {
+            background: #fff3cd;
+            border-bottom: 2px solid #ffc107;
+            padding: 10px 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+        .status-bar.ok { background: #d1e7dd; border-color: #20c997; color: #0a3622; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #ffc107; flex-shrink: 0; }
+        .status-bar.ok .status-dot { background: #20c997; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        /* MAIN LAYOUT */
+        .main-content { padding: 30px 40px; }
+
+        /* INPUT */
+        .section-label {
+            font-size: 1.1em; font-weight: 700; color: #2a5298;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+        }
+        .input-area {
+            width: 100%;
+            min-height: 180px;
+            padding: 18px;
+            border: 2px solid #dee2e6;
+            border-radius: 14px;
+            font-size: 1.05em;
+            font-family: inherit;
+            resize: vertical;
+            direction: rtl;
+            transition: border-color 0.3s;
+            line-height: 1.8;
+        }
+        .input-area:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+
+        /* TABS */
+        .tabs-wrapper { margin: 25px 0 10px; }
+        .tabs-nav {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            border-bottom: 3px solid #e9ecef;
+            padding-bottom: 0; margin-bottom: 0;
+        }
+        .tab-btn {
+            padding: 9px 18px;
+            border: 2px solid transparent;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            background: #f1f3f9;
+            font-family: inherit;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            top: 3px;
+        }
+        .tab-btn:hover { background: #e8f0fe; color: #2a5298; }
+        .tab-btn.active {
+            background: white;
+            color: #2a5298;
+            border-color: #e9ecef;
+            border-bottom-color: white;
+            z-index: 1;
+        }
+        .tab-pane {
+            display: none;
+            background: #f8f9ff;
+            border: 2px solid #e9ecef;
+            border-top: none;
+            border-radius: 0 0 14px 14px;
+            padding: 22px;
+        }
+        .tab-pane.active { display: block; }
+
+        /* FORM GRID */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+        .form-group label { display: block; font-size: 0.85em; font-weight: 600; color: #495057; margin-bottom: 5px; }
+        .form-group input[type=text],
+        .form-group input[type=number],
+        .form-group select {
+            width: 100%; padding: 9px 10px;
+            border: 1.5px solid #ced4da;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #667eea; }
+        .form-group input[type=color] { width: 100%; height: 40px; border: 1.5px solid #ced4da; border-radius: 8px; padding: 2px; cursor: pointer; }
+        .check-row { display: flex; align-items: center; gap: 8px; padding-top: 5px; }
+        .check-row input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; }
+        .check-row label { font-size: 0.85em; font-weight: 600; color: #495057; cursor: pointer; margin: 0; }
+
+        /* HEADING LEVELS SUB-TABS */
+        .h-subtabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .h-sub-btn {
+            padding: 5px 14px; border: 1.5px solid #ced4da; border-radius: 20px;
+            background: white; font-family: inherit; font-size: 0.82em;
+            font-weight: 600; cursor: pointer; color: #6c757d; transition: all 0.2s;
+        }
+        .h-sub-btn:hover { border-color: #667eea; color: #2a5298; }
+        .h-sub-btn.active { background: #2a5298; color: white; border-color: #2a5298; }
+        .h-sub-pane { display: none; }
+        .h-sub-pane.active { display: block; }
+
+        /* ACTIONS + PREVIEW */
+        .actions-bar {
+            display: flex; gap: 12px; justify-content: center;
+            flex-wrap: wrap; margin: 25px 0;
+        }
+        .btn {
+            padding: 13px 35px; border: none; border-radius: 12px;
+            font-family: inherit; font-size: 1em; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.25s;
+        }
+        .btn-process {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.4);
+        }
+        .btn-process:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102,126,234,0.5); }
+        .btn-copy { background: white; color: #2a5298; border: 2px solid #2a5298; }
+        .btn-copy:hover { background: #2a5298; color: white; }
+        .btn-word {
+            background: linear-gradient(135deg, #1a7f5e, #28a745);
+            color: white; box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+            display: none;
+        }
+        .btn-word.visible { display: flex; }
+        .btn-word:hover { transform: translateY(-2px); }
+
+        .preview-section { background: #f8f9ff; border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+        .preview-box {
+            background: white;
+            border: 1.5px solid #dee2e6;
+            border-radius: 12px;
+            padding: 35px 40px;
+            min-height: 300px;
+            direction: rtl;
+            text-align: right;
+            line-height: 1.9;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+        .preview-placeholder { text-align: center; color: #adb5bd; margin-top: 60px; font-size: 1.1em; }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: none;
+            background: #e8f0fe;
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 15px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .stats-bar.visible { display: flex; }
+        .stat-item { font-size: 0.85em; color: #2a5298; font-weight: 600; }
+        .stat-item span { color: #764ba2; }
+
+        .loader-overlay {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            font-weight: 700;
+            color: #2a5298;
+            font-size: 1.05em;
+        }
+        .loader-overlay.visible { display: block; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>📝 منسق النصوص العربية الذكي</h1>
+        <p>تنظيف إشارات Unicode المخفية · كشف العناوين التلقائي · 6 مستويات للعناوين · تصدير Word احترافي</p>
+    </div>
+
+    <!-- SERVER STATUS -->
+    <div class="status-bar" id="statusBar">
+        <div class="status-dot"></div>
+        <span id="statusMsg">جاري التحقق من الخادم... (المعاينة تعمل بدون خادم)</span>
+    </div>
+
+    <div class="main-content">
+
+        <!-- INPUT -->
+        <div style="margin-bottom: 25px;">
+            <div class="section-label">📥 أدخل النص</div>
+            <textarea class="input-area" id="textInput" placeholder="الصق النص العربي هنا... سيتم إزالة إشارات الاتجاه المخفية (LRM, RLM, LRE...) وكشف العناوين تلقائياً"></textarea>
+        </div>
+
+        <!-- SETTINGS TABS -->
+        <div class="section-label">⚙️ إعدادات التنسيق</div>
+        <div class="tabs-wrapper">
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab(this,'pane-general')">الفقرات والخط</button>
+                <button class="tab-btn" onclick="switchTab(this,'pane-headings')">العناوين (6 مستويات)</button>
+                <button class="tab-btn" onclick="switchTab(this,'pane-lists')">القوائم</button>
+                <button class="tab-btn" onclick="switchTab(this,'pane-page')">إعدادات الصفحة</button>
+            </div>
+
+            <!-- TAB: GENERAL -->
+            <div class="tab-pane active" id="pane-general">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>نوع الخط</label>
+                        <select id="fontFamily">
+                            <option value="Traditional Arabic" selected>Traditional Arabic</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Tahoma">Tahoma</option>
+                            <option value="Simplified Arabic">Simplified Arabic</option>
+                            <option value="Cairo">Cairo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>حجم الخط (pt)</label>
+                        <input type="number" id="fontSize" value="14" min="8" max="36">
+                    </div>
+                    <div class="form-group">
+                        <label>لون النص</label>
+                        <input type="color" id="fontColor" value="#1a1a1a">
+                    </div>
+                    <div class="form-group">
+                        <label>المحاذاة</label>
+                        <select id="alignment">
+                            <option value="right" selected>يمين ←</option>
+                            <option value="justify">ضبط كامل</option>
+                            <option value="center">وسط</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>تباعد الأسطر</label>
+                        <select id="lineSpacing">
+                            <option value="1.2">مضغوط (1.2)</option>
+                            <option value="1.5" selected>متوسط (1.5)</option>
+                            <option value="2">مزدوج (2.0)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>مسافة بعد الفقرة (px)</label>
+                        <input type="number" id="spaceAfter" value="10" min="0" max="50">
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: HEADINGS -->
+            <div class="tab-pane" id="pane-headings">
+                <div class="h-subtabs" id="hSubtabs">
+                    <button class="h-sub-btn active" onclick="switchHPane(this,'hp-1')">عنوان 1</button>
+                    <button class="h-sub-btn" onclick="switchHPane(this,'hp-2')">عنوان 2</button>
+                    <button class="h-sub-btn" onclick="switchHPane(this,'hp-3')">عنوان 3</button>
+                    <button class="h-sub-btn" onclick="switchHPane(this,'hp-4')">عنوان 4</button>
+                    <button class="h-sub-btn" onclick="switchHPane(this,'hp-5')">عنوان 5</button>
+                    <button class="h-sub-btn" onclick="switchHPane(this,'hp-6')">عنوان 6</button>
+                </div>
+                <div id="heading-panes"></div>
+                <div style="margin-top:15px; padding: 12px; background:#fff3cd; border-radius:8px; font-size:0.85em; color:#856404;">
+                    💡 <strong>الكشف التلقائي للعناوين:</strong> الباب، الفصل، المبحث، المطلب، الفرع، البند، أولاً/ثانياً... وأنماط الترقيم (1. / 1.1 / أ-)
+                </div>
+            </div>
+
+            <!-- TAB: LISTS -->
+            <div class="tab-pane" id="pane-lists">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>رمز القوائم المنقطة</label>
+                        <select id="bulletSymbol">
+                            <option value="•" selected>• دائرة مصمتة</option>
+                            <option value="◦">◦ دائرة فارغة</option>
+                            <option value="▪">▪ مربع صغير</option>
+                            <option value="–">– شرطة</option>
+                            <option value="-">- واصلة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>شكل الترقيم</label>
+                        <select id="numberStyle">
+                            <option value="1." selected>1. 2. 3.</option>
+                            <option value="(1)">(1) (2) (3)</option>
+                            <option value="1-">1- 2- 3-</option>
+                            <option value="أ.">أ. ب. ج.</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PAGE SETUP -->
+            <div class="tab-pane" id="pane-page">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>نص الترويسة (Header)</label>
+                        <input type="text" id="headerText" placeholder="مثال: وزارة التعليم العالي">
+                    </div>
+                    <div class="form-group">
+                        <label>محاذاة الترويسة</label>
+                        <select id="headerAlign">
+                            <option value="center" selected>وسط</option>
+                            <option value="right">يمين</option>
+                            <option value="left">يسار</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>نص التذييل (Footer)</label>
+                        <input type="text" id="footerText" placeholder="مثال: سري - نسخة أولية">
+                    </div>
+                    <div class="form-group">
+                        <label>محاذاة التذييل</label>
+                        <select id="footerAlign">
+                            <option value="center" selected>وسط</option>
+                            <option value="right">يمين</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="grid-column: 1/-1;">
+                        <div class="check-row">
+                            <input type="checkbox" id="pageNumbers" checked>
+                            <label for="pageNumbers">إضافة ترقيم الصفحات</label>
+                        </div>
+                        <div class="check-row" style="margin-top:8px;">
+                            <input type="checkbox" id="startSecondPage" checked>
+                            <label for="startSecondPage">تخطي الصفحة الأولى (تبدأ الأرقام من الصفحة الثانية)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="actions-bar">
+            <button class="btn btn-process" onclick="processText()">⚡ معالجة النص وعرض المعاينة</button>
+            <button class="btn btn-copy" onclick="copyText()">📋 نسخ النص المنظف</button>
+            <button class="btn btn-word visible" id="wordBtn" onclick="downloadWord()">💾 تحميل Word (.docx)</button>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-item">الأحرف الأصلية: <span id="statOrigChars">0</span></div>
+            <div class="stat-item">إشارات محذوفة: <span id="statRemoved">0</span></div>
+            <div class="stat-item">عناوين مكتشفة: <span id="statHeadings">0</span></div>
+            <div class="stat-item">الفقرات: <span id="statParas">0</span></div>
+        </div>
+
+        <div class="loader-overlay" id="loaderOverlay">⚙️ جاري تحليل النص وتطبيق التنسيقات...</div>
+
+        <!-- PREVIEW -->
+        <div class="preview-section">
+            <div class="section-label">👁️ معاينة النتيجة</div>
+            <div class="preview-box" id="previewBox">
+                <div class="preview-placeholder">أدخل النص واضغط "معالجة" لعرض المعاينة هنا</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ============================================================
+// DATA: Default heading settings
+// ============================================================
+const defaultHeadings = [
+    { size: 22, color: '#1e3c72', align: 'center', weight: 'bold',     underline: false },
+    { size: 18, color: '#2a5298', align: 'right',  weight: 'bold',     underline: false },
+    { size: 16, color: '#2a5298', align: 'right',  weight: 'bold',     underline: false },
+    { size: 14, color: '#333333', align: 'right',  weight: 'bold',     underline: false },
+    { size: 13, color: '#333333', align: 'right',  weight: 'semi-bold',underline: false },
+    { size: 12, color: '#555555', align: 'right',  weight: 'regular',  underline: false },
+];
+
+// ============================================================
+// BUILD HEADING SUB-PANES
+// ============================================================
+const hPanesContainer = document.getElementById('heading-panes');
+defaultHeadings.forEach((hd, idx) => {
+    const n = idx + 1;
+    hPanesContainer.innerHTML += `
+    <div class="h-sub-pane ${n===1?'active':''}" id="hp-${n}">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>حجم الخط (pt)</label>
+                <input type="number" id="h${n}Size" value="${hd.size}" min="8" max="48">
+            </div>
+            <div class="form-group">
+                <label>لون الخط</label>
+                <input type="color" id="h${n}Color" value="${hd.color}">
+            </div>
+            <div class="form-group">
+                <label>المحاذاة</label>
+                <select id="h${n}Align">
+                    <option value="center" ${hd.align==='center'?'selected':''}>وسط</option>
+                    <option value="right"  ${hd.align==='right' ?'selected':''}>يمين</option>
+                    <option value="left"   ${hd.align==='left'  ?'selected':''}>يسار</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>سماكة الخط</label>
+                <select id="h${n}Weight">
+                    <option value="bold"      ${hd.weight==='bold'     ?'selected':''}>غامق (Bold)</option>
+                    <option value="semi-bold" ${hd.weight==='semi-bold'?'selected':''}>شبه غامق (600)</option>
+                    <option value="regular"   ${hd.weight==='regular'  ?'selected':''}>عادي (Regular)</option>
+                </select>
+            </div>
+            <div class="form-group" style="display:flex;align-items:flex-end;">
+                <div class="check-row">
+                    <input type="checkbox" id="h${n}Underline" ${hd.underline?'checked':''}>
+                    <label for="h${n}Underline">تسطير (Underline)</label>
+                </div>
+            </div>
+        </div>
+    </div>`;
+});
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(btn, paneId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(paneId).classList.add('active');
+}
+
+function switchHPane(btn, paneId) {
+    document.querySelectorAll('.h-sub-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.h-sub-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(paneId).classList.add('active');
+}
+
+// ============================================================
+// TEXT CLEANING
+// ============================================================
+const DIR_MARKS = /[\u200E\u200F\u202A\u202B\u202C\u202D\u202E\u2066\u2067\u2068\u2069\uFEFF]/g;
+
+function cleanText(raw) {
+    const original = raw.length;
+    let t = raw.replace(DIR_MARKS, '');
+    const removed = original - t.length;
+    // Fix bracket spacing
+    t = t.replace(/ \)/g, ')').replace(/\( /g, '(')
+         .replace(/ \]/g, ']').replace(/\[ /g, '[');
+    return { text: t, removed };
+}
+
+// ============================================================
+// HEADING DETECTION (improved heuristics)
+// ============================================================
+function detectLineType(line) {
+    const raw = line;
+    line = line.trim();
+    if (!line) return { type: 'empty' };
+
+    // Lines longer than 200 chars are never headings
+    if (line.length > 200) return { type: 'paragraph', text: line };
+
+    // Bullet lists
+    if (/^[\-\–\•\*\◦\▪]\s+\S/.test(line))
+        return { type: 'bullet', text: line.replace(/^[\-\–\•\*\◦\▪]\s+/, '') };
+
+    // --- Level 1: الباب | الفصل | Part | Chapter
+    if (/^(الباب|الفصل|القسم|Part|Chapter)\s+/i.test(line) && line.length < 120)
+        return { type: 'heading', level: 1, text: line };
+
+    // --- Level 2: المبحث | Section
+    if (/^(المبحث|Section)\s+/i.test(line) && line.length < 120)
+        return { type: 'heading', level: 2, text: line };
+
+    // --- Level 3: المطلب | المادة | Article
+    if (/^(المطلب|المادة|البند\s+\d|Article)\s+/i.test(line) && line.length < 120)
+        return { type: 'heading', level: 3, text: line };
+
+    // --- Level 4: الفرع | البند | أولاً | ثانياً ...
+    if (/^(الفرع|البند|أولاً|ثانياً|ثالثاً|رابعاً|خامساً|سادساً|سابعاً|ثامناً|تاسعاً|عاشراً)[:\s]/i.test(line) && line.length < 120)
+        return { type: 'heading', level: 4, text: line };
+
+    // --- Level 5: 1. or (1) short text — numbered heading
+    if (/^\d+[\.)\-]\s+\S/.test(line) && line.length < 100)
+        return { type: 'heading', level: 5, text: line };
+
+    // --- Level 6: 1.1 or أ- short text
+    if (/^(\d+\.\d+[\.)\-]?\s+|[أبجدهوزحط]\s*[\-\.\)]\s+)/.test(line) && line.length < 100)
+        return { type: 'heading', level: 6, text: line };
+
+    // Numbered list (long line starting with digit)
+    if (/^\d+[\.)\-]\s+\S/.test(line))
+        return { type: 'numbered', text: line.replace(/^\d+[\.)\-]\s+/, '') };
+
+    return { type: 'paragraph', text: line };
+}
+
+// ============================================================
+// GET SETTINGS
+// ============================================================
+function getSettings() {
+    const s = {
+        fontFamily:  document.getElementById('fontFamily').value,
+        fontSize:    parseInt(document.getElementById('fontSize').value) || 14,
+        fontColor:   document.getElementById('fontColor').value,
+        alignment:   document.getElementById('alignment').value,
+        lineSpacing: parseFloat(document.getElementById('lineSpacing').value) || 1.5,
+        spaceAfter:  parseInt(document.getElementById('spaceAfter').value)  || 10,
+        bullet:      document.getElementById('bulletSymbol').value,
+        numStyle:    document.getElementById('numberStyle').value,
+        headerText:  document.getElementById('headerText').value,
+        footerText:  document.getElementById('footerText').value,
+        pageNumbers: document.getElementById('pageNumbers').checked,
+        startSecond: document.getElementById('startSecondPage').checked,
+        headings: []
+    };
+    for (let i = 1; i <= 6; i++) {
+        s.headings.push({
+            size:      parseInt(document.getElementById(`h${i}Size`).value)    || 14,
+            color:     document.getElementById(`h${i}Color`).value,
+            align:     document.getElementById(`h${i}Align`).value,
+            weight:    document.getElementById(`h${i}Weight`).value,
+            underline: document.getElementById(`h${i}Underline`).checked,
+        });
+    }
+    return s;
+}
+
+// ============================================================
+// BUILD PREVIEW HTML (100% client-side, no server needed)
+// ============================================================
+let lastCleanedText = '';
+let lastStats       = {};
+
+function buildPreviewHTML(text, s) {
+    const lines = text.split('\n');
+    let html = '';
+    let headingCount = 0, paraCount = 0;
+    let numCounter = 1;
+
+    const weightMap = { 'bold': '700', 'semi-bold': '600', 'regular': '400' };
+
+    lines.forEach(line => {
+        const info = detectLineType(line);
+
+        if (info.type === 'empty') {
+            html += `<div style="margin-bottom:${s.spaceAfter/2}px;"></div>`;
+            numCounter = 1;
+            return;
+        }
+
+        if (info.type === 'heading') {
+            headingCount++;
+            numCounter = 1;
+            const hd = s.headings[info.level - 1];
+            const fw = weightMap[hd.weight] || '700';
+            const td = hd.underline ? 'underline' : 'none';
+            html += `<div style="
+                font-family: '${s.fontFamily}', sans-serif;
+                font-size: ${hd.size}pt;
+                color: ${hd.color};
+                text-align: ${hd.align};
+                font-weight: ${fw};
+                text-decoration: ${td};
+                direction: rtl;
+                margin-bottom: 8px;
+                margin-top: ${info.level <= 2 ? 20 : 12}px;
+                line-height: 1.6;
+            ">${escHtml(info.text)}</div>`;
+            return;
+        }
+
+        if (info.type === 'bullet') {
+            numCounter = 1;
+            html += `<div style="
+                font-family: '${s.fontFamily}', sans-serif;
+                font-size: ${s.fontSize}pt;
+                color: ${s.fontColor};
+                direction: rtl;
+                text-align: right;
+                padding-right: 20px;
+                margin-bottom: ${s.spaceAfter}px;
+                line-height: ${s.lineSpacing};
+            ">${s.bullet} ${escHtml(info.text)}</div>`;
+            return;
+        }
+
+        if (info.type === 'numbered') {
+            let prefix = formatNumPrefix(numCounter, s.numStyle);
+            numCounter++;
+            html += `<div style="
+                font-family: '${s.fontFamily}', sans-serif;
+                font-size: ${s.fontSize}pt;
+                color: ${s.fontColor};
+                direction: rtl;
+                text-align: right;
+                padding-right: 20px;
+                margin-bottom: ${s.spaceAfter}px;
+                line-height: ${s.lineSpacing};
+            ">${prefix} ${escHtml(info.text)}</div>`;
+            return;
+        }
+
+        // paragraph
+        numCounter = 1;
+        paraCount++;
+        html += `<div style="
+            font-family: '${s.fontFamily}', sans-serif;
+            font-size: ${s.fontSize}pt;
+            color: ${s.fontColor};
+            text-align: ${s.alignment};
+            direction: rtl;
+            margin-bottom: ${s.spaceAfter}px;
+            line-height: ${s.lineSpacing};
+        ">${escHtml(info.text)}</div>`;
+    });
+
+    lastStats = { headings: headingCount, paragraphs: paraCount };
+    return html;
+}
+
+function formatNumPrefix(n, style) {
+    const arabicLetters = 'أبجدهوزحطيكلمنسعفصقرشت';
+    if (style === 'أ.')  return arabicLetters[n-1] ? arabicLetters[n-1] + '.' : n + '.';
+    if (style === '(1)') return `(${n})`;
+    if (style === '1-')  return `${n}-`;
+    return `${n}.`;
+}
+
+function escHtml(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ============================================================
+// MAIN PROCESS FUNCTION
+// ============================================================
+function processText() {
+    const raw = document.getElementById('textInput').value;
+    if (!raw.trim()) { alert('الرجاء إدخال النص أولاً!'); return; }
+
+    document.getElementById('loaderOverlay').classList.add('visible');
+
+    setTimeout(() => {
+        const { text, removed } = cleanText(raw);
+        lastCleanedText = text;
+        const s = getSettings();
+
+        const html = buildPreviewHTML(text, s);
+        document.getElementById('previewBox').innerHTML = html || '<p style="color:#999">لم يتم إنتاج محتوى - تحقق من النص المدخل</p>';
+
+        // Stats
+        document.getElementById('statOrigChars').textContent = raw.length.toLocaleString();
+        document.getElementById('statRemoved').textContent   = removed;
+        document.getElementById('statHeadings').textContent  = lastStats.headings;
+        document.getElementById('statParas').textContent     = lastStats.paragraphs;
+        document.getElementById('statsBar').classList.add('visible');
+
+        document.getElementById('loaderOverlay').classList.remove('visible');
+        document.getElementById('wordBtn').classList.add('visible');
+
+        // If server available, also prepare Word doc
+        tryServerProcess(text, s);
+    }, 50);
+}
+
+// ============================================================
+// SERVER INTEGRATION (optional — Word download)
+// ============================================================
+let wordDocHex = null;
+let serverAvailable = false;
+
+async function checkServer() {
+    try {
+        const r = await fetch('http://127.0.0.1:8000/docs', { method: 'HEAD' });
+        if (r.ok || r.status === 200 || r.status === 405) {
+            serverAvailable = true;
+            document.getElementById('statusBar').className = 'status-bar ok';
+            document.getElementById('statusMsg').textContent = 'الخادم متصل ✓ — تحميل Word عبر الخادم متاح';
+        }
+    } catch {
+        serverAvailable = false;
+    }
+}
+
+async function tryServerProcess(text, s) {
+    if (!serverAvailable) return;
+    try {
+        const payload = {
+            text,
+            font_family: s.fontFamily,
+            font_size:   s.fontSize,
+            font_color:  s.fontColor,
+            alignment:   s.alignment,
+            line_spacing: s.lineSpacing,
+            space_before: 0,
+            space_after:  s.spaceAfter,
+            bullet_symbol: s.bullet,
+            number_style:  s.numStyle,
+            header_text:   s.headerText,
+            footer_text:   s.footerText,
+            page_numbers:  s.pageNumbers,
+            start_from_second_page: s.startSecond,
+        };
+        for (let i = 1; i <= 6; i++) {
+            const hd = s.headings[i-1];
+            payload[`heading${i}`] = {
+                size: hd.size, color: hd.color,
+                alignment: hd.align, weight: hd.weight, underline: hd.underline
+            };
+        }
+        const res  = await fetch('http://127.0.0.1:8000/process', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) wordDocHex = data.document_base64;
+    } catch {}
+}
+
+// ============================================================
+// DOWNLOAD WORD
+// ============================================================
+function downloadWord() {
+    if (wordDocHex) {
+        // Server-generated docx
+        const bytes = new Uint8Array(wordDocHex.match(/.{1,2}/g).map(b => parseInt(b, 16)));
+        triggerDownload(new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}), 'Document.docx');
+    } else {
+        // Fallback: basic HTML → Word (mht)
+        const preview = document.getElementById('previewBox').innerHTML;
+        const mht = `<html xmlns:o='urn:schemas-microsoft-com:office:office'
+                           xmlns:w='urn:schemas-microsoft-com:office:word'
+                           xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'>
+<style>
+  body { direction: rtl; font-family: 'Traditional Arabic'; }
+</style>
+</head><body dir='rtl'>${preview}</body></html>`;
+        triggerDownload(new Blob(['\ufeff' + mht], {type:'application/msword'}), 'Document.doc');
+    }
+}
+
+function triggerDownload(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+}
+
+// ============================================================
+// COPY CLEAN TEXT
+// ============================================================
+function copyText() {
+    if (!lastCleanedText) { alert('اضغط "معالجة النص" أولاً'); return; }
+    navigator.clipboard.writeText(lastCleanedText).then(() => {
+        alert('✅ تم نسخ النص المنظف إلى الحافظة');
+    });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+checkServer();
+</script>
+</body>
+</html>
