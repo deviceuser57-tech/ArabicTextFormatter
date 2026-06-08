@@ -1,6 +1,6 @@
 fastapi
 uvicorn
 python-docx
-pypdf2
+pypdf
 pydantic
 python-multipart
