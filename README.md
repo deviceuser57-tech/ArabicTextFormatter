@@ -82,45 +82,4 @@ This is essentially a comprehensive Arabic document management and processing sy
 Get data from /repos/deviceuser57-tech/ArabicTextFormatter/contents
 
 Using results of get file and 2 other tool calls
- الميزات المُنفذة فعلاً (Implemented):
-1. إدارة المشاريع والمساحات (Workspace & Project Management)
-✅ إنشاء Workspaces
-✅ حذف Workspaces
-✅ عرض قائمة Workspaces
-✅ إنشاء Projects داخل Workspaces
-✅ حذف Projects
-✅ عرض Projects لكل Workspace
-2. قواعد ودستور المشروع (Project Rules/Constitution)
-✅ تعريف قواعد المشروع (لغة، نمط، ترقيم...)
-✅ حفظ واسترجاع قواعد المشروع
-3. إدارة المعرفة والذاكرة (Knowledge & Memory)
-✅ إنشاء Knowledge Items
-✅ حذف Knowledge Items
-✅ إنشاء Memory Items
-✅ حذف Memory Items
-4. رفع الملفات (File Upload)
-✅ تحميل ملفات TXT و MD
-✅ تحميل ملفات DOCX
-✅ تحميل ملفات PDF (مع خيار Gemini API)
-❌ الميزات الكود موجود لكنها غير مفعّلة عملياً:
-1. إدارة المستندات والإصدارات
-❌ الروتر موجود لكن لا يُستدعى من main.py
-❌ العمليات موجودة في dcos_db.py لكن لا يتم استخدامها
-2. معالجة النصوص الإدراكية (Cognitive Processing)
-dcos_cognitive.py موجود لكن:
-تنظيف Unicode ✗
-كشف بنية المستند ✗
-محرك الترقيم الآلي ✗
-3. التصدير (Export)
-dcos_export.py موجود لكن:
-تصدير DOCX ✗
-تصدير Markdown ✗
-تصدير HTML ✗
-4. الذكاء الاصطناعي (AI Features)
-dcos_ai.py موجود لكن:
-توليد النصوص ✗
-تحليل الوثائق ✗
-مراجعة الجودة ✗
-إعادة صياغة النصوص ✗
-تشكيل النصوص العربية ✗
-الدردشة التفاعلية ✗
+ الميزات المُنفذة فعلاً (
