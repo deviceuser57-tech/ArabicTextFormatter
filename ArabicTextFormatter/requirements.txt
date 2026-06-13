@@ -4,6 +4,7 @@ python-docx
 pypdf
 pydantic
 python-multipart
-
 sqlalchemy
 alembic
+mishkal
+requests

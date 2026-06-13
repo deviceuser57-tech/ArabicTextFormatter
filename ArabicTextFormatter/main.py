@@ -4,9 +4,17 @@ from fastapi.responses import HTMLResponse, JSONResponse
 import os
 import io
 import traceback
+import sys
+
+# Add current directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from routers import workspaces, projects, documents, ai
 import dcos_db
+from database import engine, Base
+
+# Create all database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Documents Cognitive Operating System (DCOS) API", version="1.0")
 
@@ -26,6 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ✅ تسجيل جميع الروترز
 app.include_router(workspaces.router)
 app.include_router(projects.router)
 app.include_router(documents.router)
@@ -39,6 +48,11 @@ def read_root():
             return HTMLResponse(content=f.read())
     except Exception as e:
         return HTMLResponse(content=f"<h3>Error loading index.html: {str(e)}</h3>", status_code=500)
+
+@app.get("/health")
+def health_check():
+    """فحص صحة الخادم"""
+    return {"status": "healthy", "message": "النظام يعمل بشكل طبيعي"}
 
 @app.delete("/knowledge/{item_id}")
 def remove_knowledge_item(item_id: str):
@@ -56,6 +70,7 @@ async def upload_file(
     provider: str = Form(None),
     api_key: str = Form(None)
 ):
+    """رفع الملفات وتحويلها إلى نص"""
     content = await file.read()
     if file.filename.endswith('.txt') or file.filename.endswith('.md'):
         text = content.decode('utf-8')
@@ -67,9 +82,9 @@ async def upload_file(
         if provider == "gemini" and api_key:
             try:
                 import base64
-                pdf_base64 = base64.b64encode(content).decode('utf-8')
                 import urllib.request
                 import json
+                pdf_base64 = base64.b64encode(content).decode('utf-8')
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
                 payload = {
                     "contents": [{
